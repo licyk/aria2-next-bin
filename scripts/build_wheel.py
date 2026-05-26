@@ -427,8 +427,8 @@ def metadata_files(project: dict[str, Any], version: str, platform_tag: str) -> 
     return {
         "METADATA": metadata_text(project, version),
         "WHEEL": wheel_text(platform_tag),
-        "entry_points.txt": "[console_scripts]\naria2-next = aria2_next_bin._run:main\n",
-        "top_level.txt": "aria2_next\naria2_next_bin\n",
+        "entry_points.txt": "[console_scripts]\naria2-next = aria2_next.__main__:_run\n",
+        "top_level.txt": "aria2_next\n",
     }
 
 
@@ -473,12 +473,12 @@ def write_wheel_archive(
             zip_write(zf, source, arcname, executable)
             records.append([arcname, *sha256_record(source)])
 
-        binary_arcname = f"aria2_next_bin/bin/{target.wheel_binary}"
+        binary_arcname = f"aria2_next/bin/{target.wheel_binary}"
         zip_write(zf, binary, binary_arcname, target.executable)
         records.append([binary_arcname, *sha256_record(binary)])
 
         if license_file is not None:
-            license_arcname = "aria2_next_bin/licenses/aria2-next-COPYING"
+            license_arcname = "aria2_next/licenses/aria2-next-COPYING"
             zip_write(zf, license_file, license_arcname)
             records.append([license_arcname, *sha256_record(license_file)])
 

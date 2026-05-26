@@ -62,8 +62,9 @@ aria2-next --version
 python -m aria2_next --version
 ```
 
-安装后既可以使用 console script `aria2-next`，也可以使用 `python -m aria2_next`
-执行 wheel 内的二进制文件。
+wheel 文件名仍来自发行包名 `aria2-next-bin`，安装后的 Python 包名是 `aria2_next`。
+wheel 会把真实的 `aria2-next` 二进制文件放进包内。`aria2-next` 命令和
+`python -m aria2_next` 都会按 uv 的 `_find_uv.py` 思路定位该二进制文件并执行它。
 
 ## 校验
 
