@@ -1,0 +1,5 @@
+This project packages aria2-next release binaries and is distributed under
+GPL-2.0-or-later, matching the packaged upstream project.
+
+The canonical GPL-2.0 license text is provided by the upstream aria2-next
+repository as COPYING and is included in built wheels when available.

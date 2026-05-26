@@ -1,0 +1,48 @@
+name: build-wheels
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "aria2-next release tag to package, or latest"
+        required: false
+        default: "latest"
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build all wheels
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build dependencies
+        run: python -m pip install --upgrade pip packaging pytest
+
+      - name: Run tests
+        run: python -m pytest -q
+
+      - name: Build wheels
+        env:
+          RELEASE: ${{ github.event.inputs.release || 'latest' }}
+        run: python scripts/build_wheel.py --release "$RELEASE" --target all
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: aria2-next-bin-wheels
+          path: dist/*.whl
+          if-no-files-found: error

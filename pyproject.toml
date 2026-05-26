@@ -1,0 +1,41 @@
+[build-system]
+requires = [
+  "packaging>=23",
+  "tomli; python_version < '3.11'",
+]
+build-backend = "_build_backend"
+backend-path = ["."]
+
+[project]
+name = "aria2-next-bin"
+dynamic = ["version"]
+description = "Prebuilt aria2-next executable packaged as platform-specific Python wheels."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "GPL-2.0-or-later" }
+authors = [
+  { name = "licyk" }
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Operating System :: Microsoft :: Windows",
+  "Programming Language :: Python :: 3",
+  "Topic :: Internet :: File Transfer Protocol (FTP)",
+  "Topic :: System :: Archiving :: Packaging",
+]
+
+[project.urls]
+Homepage = "https://github.com/licyk/aria2-next-bin"
+Source = "https://github.com/AnInsomniacy/aria2-next"
+
+[project.scripts]
+aria2-next = "aria2_next_bin._run:main"
+
+[tool.aria2-next-bin]
+release-repository = "AnInsomniacy/aria2-next"
+default-release = "latest"
