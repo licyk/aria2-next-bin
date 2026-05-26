@@ -72,7 +72,7 @@ def test_write_wheel_archive(tmp_path) -> None:
         assert "aria2_next/__init__.py" in names
         assert "aria2_next/__main__.py" in names
         assert "aria2_next/_find_aria2_next.py" in names
-        assert "aria2_next/bin/aria2-next" in names
+        assert "aria2_next_bin-2.2.6.data/scripts/aria2-next" in names
         assert "aria2_next/licenses/aria2-next-COPYING" in names
         assert "aria2_next_bin-2.2.6.dist-info/METADATA" in names
         assert "aria2_next_bin-2.2.6.dist-info/RECORD" in names
@@ -84,13 +84,13 @@ def test_write_wheel_archive(tmp_path) -> None:
         wheel = zf.read("aria2_next_bin-2.2.6.dist-info/WHEEL").decode()
         assert "Tag: py3-none-manylinux_2_28_x86_64" in wheel
 
-        entry_points = zf.read("aria2_next_bin-2.2.6.dist-info/entry_points.txt").decode()
-        assert "aria2-next = aria2_next.__main__:_run" in entry_points
+        assert "aria2_next_bin-2.2.6.dist-info/entry_points.txt" not in names
 
         top_level = zf.read("aria2_next_bin-2.2.6.dist-info/top_level.txt").decode()
         assert top_level == "aria2_next\n"
 
-        mode = zf.getinfo("aria2_next/bin/aria2-next").external_attr >> 16
+        mode = zf.getinfo("aria2_next_bin-2.2.6.data/scripts/aria2-next").external_attr >> 16
+        assert stat.S_ISREG(mode)
         assert stat.S_IMODE(mode) == 0o755
 
 
@@ -111,26 +111,20 @@ def test_matching_parents_handles_target_install_path(monkeypatch) -> None:
     assert parent == "/target"
 
 
-def test_find_aria2_next_bin_prefers_bundled_binary(tmp_path, monkeypatch) -> None:
+def test_find_aria2_next_bin_uses_scripts_binary(tmp_path, monkeypatch) -> None:
     site_packages = tmp_path / "site-packages"
     package_dir = site_packages / "aria2_next"
-    binary_dir = site_packages / "aria2_next" / "bin"
     scripts_dir = tmp_path / "bin"
     package_dir.mkdir(parents=True)
-    binary_dir.mkdir(parents=True)
     scripts_dir.mkdir()
 
-    bundled_binary = binary_dir / "aria2-next"
-    bundled_binary.write_bytes(b"binary")
-    bundled_binary.chmod(0o644)
-
-    wrapper = scripts_dir / "aria2-next"
-    wrapper.write_text("#!/usr/bin/env python\nfrom aria2_next.__main__ import _run\n", encoding="utf-8")
-    wrapper.chmod(0o755)
+    scripts_binary = scripts_dir / "aria2-next"
+    scripts_binary.write_bytes(b"binary")
+    scripts_binary.chmod(0o644)
 
     monkeypatch.setattr(_find_aria2_next, "_module_path", lambda: str(package_dir))
     monkeypatch.setattr(_find_aria2_next.sysconfig, "get_config_var", lambda name: "")
     monkeypatch.setattr(_find_aria2_next.sysconfig, "get_path", lambda *args, **kwargs: str(scripts_dir))
 
-    assert _find_aria2_next.find_aria2_next_bin() == str(bundled_binary)
-    assert bundled_binary.stat().st_mode & 0o111
+    assert _find_aria2_next.find_aria2_next_bin() == str(scripts_binary)
+    assert scripts_binary.stat().st_mode & 0o111

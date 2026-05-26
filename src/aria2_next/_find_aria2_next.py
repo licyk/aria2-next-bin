@@ -15,8 +15,6 @@ def find_aria2_next_bin() -> str:
     exe = "aria2-next" + (sysconfig.get_config_var("EXE") or "")
 
     targets = [
-        # The bundled executable inside this wheel.
-        _join(_matching_parents(_module_path(), "aria2_next"), "aria2_next", "bin"),
         # The scripts directory for the current Python.
         sysconfig.get_path("scripts"),
         # The scripts directory for the base prefix.

@@ -63,8 +63,9 @@ python -m aria2_next --version
 ```
 
 wheel 文件名仍来自发行包名 `aria2-next-bin`，安装后的 Python 包名是 `aria2_next`。
-wheel 会把真实的 `aria2-next` 二进制文件放进包内。`aria2-next` 命令和
-`python -m aria2_next` 都会按 uv 的 `_find_uv.py` 思路定位该二进制文件并执行它。
+wheel 会像 uv 一样把真实的 `aria2-next` 二进制文件安装到当前 Python 环境的脚本目录
+（例如虚拟环境的 `bin/aria2-next`）。`python -m aria2_next` 会按 uv 的
+`_find_uv.py` 思路定位该二进制文件并执行它。
 
 ## 校验
 

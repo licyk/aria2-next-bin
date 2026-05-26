@@ -10,6 +10,7 @@ import os
 import platform
 import re
 import shutil
+import stat
 import subprocess
 import sys
 import zipfile
@@ -382,7 +383,9 @@ def csv_escape(value: str) -> str:
 
 def zip_write(zf: zipfile.ZipFile, source: Path, arcname: str, executable: bool = False) -> None:
     info = zipfile.ZipInfo(arcname)
-    info.external_attr = ((0o755 if executable else 0o644) & 0xFFFF) << 16
+    mode = stat.S_IFREG | (0o755 if executable else 0o644)
+    info.create_system = 3
+    info.external_attr = (mode & 0xFFFF) << 16
     info.compress_type = zipfile.ZIP_DEFLATED
     with source.open("rb") as f:
         zf.writestr(info, f.read())
@@ -427,7 +430,6 @@ def metadata_files(project: dict[str, Any], version: str, platform_tag: str) -> 
     return {
         "METADATA": metadata_text(project, version),
         "WHEEL": wheel_text(platform_tag),
-        "entry_points.txt": "[console_scripts]\naria2-next = aria2_next.__main__:_run\n",
         "top_level.txt": "aria2_next\n",
     }
 
@@ -473,7 +475,7 @@ def write_wheel_archive(
             zip_write(zf, source, arcname, executable)
             records.append([arcname, *sha256_record(source)])
 
-        binary_arcname = f"aria2_next/bin/{target.wheel_binary}"
+        binary_arcname = f"{dist}-{version}.data/scripts/{target.wheel_binary}"
         zip_write(zf, binary, binary_arcname, target.executable)
         records.append([binary_arcname, *sha256_record(binary)])
 
