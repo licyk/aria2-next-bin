@@ -72,6 +72,19 @@ wheel 会像 uv 一样把真实的 `aria2-next` 二进制文件安装到当前 P
 release 下载文件会使用 SHA-256 校验。构建脚本会优先使用 GitHub asset 的 `digest`
 字段；如果该字段不可用，则下载并解析 release 中的 `checksums.sha256` 文件。
 
+## GitHub Actions 发布
+
+`build-wheels` workflow 会在 push、PR 和手动触发时构建所有平台 wheel，并上传
+`aria2-next-bin-wheels` artifact。手动触发时可以填写 `release` 来指定要打包的
+aria2-next release。
+
+默认不会上传到 PyPI。需要发布时，在 GitHub Actions 手动运行 workflow，并把
+`publish` 设置为 `true`。发布使用 `twine upload dist/*.whl`，凭据从 Secrets 读取：
+
+- 推荐设置 `PYPI_API_TOKEN`，workflow 会使用 `__token__` 作为 Twine 用户名。
+- 也可以设置标准的 `TWINE_USERNAME` 和 `TWINE_PASSWORD`。
+- 如果要上传到 TestPyPI 或私有仓库，可以填写 `repository_url`。
+
 ## 许可证
 
 打包进去的可执行文件来自 `AnInsomniacy/aria2-next`，按 GPL-2.0-or-later 分发。

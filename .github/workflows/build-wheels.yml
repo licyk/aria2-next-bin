@@ -7,6 +7,15 @@ on:
         description: "aria2-next release tag to package, or latest"
         required: false
         default: "latest"
+      publish:
+        description: "Upload built wheels with twine"
+        required: false
+        type: boolean
+        default: false
+      repository_url:
+        description: "Optional twine repository URL, e.g. TestPyPI. Leave empty for PyPI."
+        required: false
+        default: ""
   push:
     branches:
       - main
@@ -30,7 +39,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install build dependencies
-        run: python -m pip install --upgrade pip packaging pytest
+        run: python -m pip install --upgrade pip packaging pytest twine
 
       - name: Run tests
         run: python -m pytest -q
@@ -40,9 +49,30 @@ jobs:
           RELEASE: ${{ github.event.inputs.release || 'latest' }}
         run: python scripts/build_wheel.py --release "$RELEASE" --target all
 
+      - name: Check wheels
+        run: python -m twine check dist/*.whl
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
           name: aria2-next-bin-wheels
           path: dist/*.whl
           if-no-files-found: error
+
+      - name: Publish wheels
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish }}
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME || '__token__' }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD || secrets.PYPI_API_TOKEN }}
+          TWINE_REPOSITORY_URL: ${{ inputs.repository_url }}
+        run: |
+          if [ -z "$TWINE_PASSWORD" ]; then
+            echo "TWINE_PASSWORD or PYPI_API_TOKEN secret is required to publish." >&2
+            exit 1
+          fi
+
+          if [ -n "$TWINE_REPOSITORY_URL" ]; then
+            python -m twine upload --non-interactive --skip-existing --repository-url "$TWINE_REPOSITORY_URL" dist/*.whl
+          else
+            python -m twine upload --non-interactive --skip-existing dist/*.whl
+          fi
