@@ -68,6 +68,8 @@ def test_write_wheel_archive(tmp_path) -> None:
 
     with zipfile.ZipFile(wheel_path) as zf:
         names = set(zf.namelist())
+        assert "aria2_next/__init__.py" in names
+        assert "aria2_next/__main__.py" in names
         assert "aria2_next_bin/__init__.py" in names
         assert "aria2_next_bin/_run.py" in names
         assert "aria2_next_bin/bin/aria2-next" in names
@@ -84,6 +86,10 @@ def test_write_wheel_archive(tmp_path) -> None:
 
         entry_points = zf.read("aria2_next_bin-2.2.6.dist-info/entry_points.txt").decode()
         assert "aria2-next = aria2_next_bin._run:main" in entry_points
+
+        top_level = zf.read("aria2_next_bin-2.2.6.dist-info/top_level.txt").decode()
+        assert "aria2_next\n" in top_level
+        assert "aria2_next_bin\n" in top_level
 
         mode = zf.getinfo("aria2_next_bin/bin/aria2-next").external_attr >> 16
         assert stat.S_IMODE(mode) == 0o755

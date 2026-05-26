@@ -29,7 +29,7 @@ except ModuleNotFoundError:  # pragma: no cover - only used on Python < 3.11
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PACKAGE_DIR = ROOT / "src" / "aria2_next_bin"
+SOURCE_DIR = ROOT / "src"
 PROJECT_FILE = ROOT / "pyproject.toml"
 DEFAULT_REPOSITORY = "AnInsomniacy/aria2-next"
 DEFAULT_RELEASE = "latest"
@@ -428,20 +428,20 @@ def metadata_files(project: dict[str, Any], version: str, platform_tag: str) -> 
         "METADATA": metadata_text(project, version),
         "WHEEL": wheel_text(platform_tag),
         "entry_points.txt": "[console_scripts]\naria2-next = aria2_next_bin._run:main\n",
-        "top_level.txt": "aria2_next_bin\n",
+        "top_level.txt": "aria2_next\naria2_next_bin\n",
     }
 
 
 def collect_source_files() -> list[tuple[Path, str, bool]]:
     files: list[tuple[Path, str, bool]] = []
-    for path in sorted(PACKAGE_DIR.rglob("*")):
+    for path in sorted(SOURCE_DIR.rglob("*")):
         if not path.is_file() or path.name == ".gitkeep":
             continue
         if "__pycache__" in path.parts or path.suffix == ".pyc":
             continue
-        if "bin" in path.relative_to(PACKAGE_DIR).parts:
+        if "bin" in path.relative_to(SOURCE_DIR).parts:
             continue
-        rel = path.relative_to(ROOT / "src").as_posix()
+        rel = path.relative_to(SOURCE_DIR).as_posix()
         files.append((path, rel, False))
     return files
 
