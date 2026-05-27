@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import stat
+import tarfile
 import zipfile
 
 import pytest
@@ -92,6 +93,37 @@ def test_write_wheel_archive(tmp_path) -> None:
         mode = zf.getinfo("aria2_next-2.2.6.data/scripts/aria2-next").external_attr >> 16
         assert stat.S_ISREG(mode)
         assert stat.S_IMODE(mode) == 0o755
+
+
+def test_write_sdist_archive(tmp_path) -> None:
+    sdist_name = build_wheel.write_sdist_archive(tmp_path / "dist", "2.2.6")
+
+    assert sdist_name == "aria2_next-2.2.6.tar.gz"
+    sdist_path = tmp_path / "dist" / sdist_name
+    assert sdist_path.exists()
+
+    with tarfile.open(sdist_path) as tf:
+        names = set(tf.getnames())
+        assert "aria2_next-2.2.6/PKG-INFO" in names
+        assert "aria2_next-2.2.6/pyproject.toml" in names
+        assert "aria2_next-2.2.6/_build_backend.py" in names
+        assert "aria2_next-2.2.6/scripts/build_wheel.py" in names
+        assert "aria2_next-2.2.6/src/aria2_next/__main__.py" in names
+        assert not any("__pycache__" in name for name in names)
+
+        metadata = tf.extractfile("aria2_next-2.2.6/PKG-INFO")
+        assert metadata is not None
+        metadata_text = metadata.read().decode()
+        assert "Name: aria2-next" in metadata_text
+        assert "Version: 2.2.6" in metadata_text
+
+
+def test_build_sdist_from_config_uses_release_version(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(build_wheel, "fetch_release", lambda selector: {"tag_name": "v2.2.6"})
+
+    sdist_name = build_wheel.build_sdist_from_config(tmp_path, {"release": "v2.2.6"})
+
+    assert sdist_name == "aria2_next-2.2.6.tar.gz"
 
 
 def test_matching_parents_handles_prefix_install_path(monkeypatch) -> None:

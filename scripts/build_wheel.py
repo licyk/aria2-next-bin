@@ -4,7 +4,9 @@ from __future__ import annotations
 import argparse
 import base64
 import csv
+import gzip
 import hashlib
+import io
 import json
 import os
 import platform
@@ -13,6 +15,7 @@ import shutil
 import stat
 import subprocess
 import sys
+import tarfile
 import zipfile
 from dataclasses import dataclass
 from email.message import Message
@@ -448,6 +451,76 @@ def collect_source_files() -> list[tuple[Path, str, bool]]:
     return files
 
 
+def collect_sdist_files() -> list[tuple[Path, str]]:
+    files: list[tuple[Path, str]] = []
+    roots = [
+        ROOT / "pyproject.toml",
+        ROOT / "README.md",
+        ROOT / "LICENSE",
+        ROOT / "_build_backend.py",
+        ROOT / "scripts",
+        ROOT / "src",
+        ROOT / "tests",
+    ]
+
+    for root in roots:
+        if not root.exists():
+            continue
+        paths = [root] if root.is_file() else sorted(root.rglob("*"))
+        for path in paths:
+            if not path.is_file() or path.name == ".gitkeep":
+                continue
+            rel_parts = path.relative_to(ROOT).parts
+            if "__pycache__" in rel_parts or path.suffix == ".pyc":
+                continue
+            files.append((path, path.relative_to(ROOT).as_posix()))
+    return files
+
+
+def tar_add_file(tf: tarfile.TarFile, source: Path, arcname: str) -> None:
+    info = tf.gettarinfo(str(source), arcname)
+    info.uid = info.gid = 0
+    info.uname = info.gname = ""
+    info.mtime = 0
+    if info.isfile():
+        info.mode = 0o644
+    with source.open("rb") as f:
+        tf.addfile(info, f)
+
+
+def tar_add_text(tf: tarfile.TarFile, arcname: str, content: str) -> None:
+    data = content.encode("utf-8")
+    info = tarfile.TarInfo(arcname)
+    info.size = len(data)
+    info.mode = 0o644
+    info.uid = info.gid = 0
+    info.uname = info.gname = ""
+    info.mtime = 0
+    tf.addfile(info, io.BytesIO(data))
+
+
+def write_sdist_archive(
+    sdist_directory: Path,
+    version: str,
+) -> str:
+    project = read_project()
+    dist = normalize_dist_name(project["name"])
+    sdist_directory.mkdir(parents=True, exist_ok=True)
+    archive_root = f"{dist}-{version}"
+    sdist_name = f"{archive_root}.tar.gz"
+    sdist_path = sdist_directory / sdist_name
+
+    with sdist_path.open("wb") as raw:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as gz:
+            with tarfile.open(fileobj=gz, mode="w", format=tarfile.PAX_FORMAT) as tf:
+                tar_add_text(tf, f"{archive_root}/PKG-INFO", metadata_text(project, version))
+                for source, rel in collect_sdist_files():
+                    tar_add_file(tf, source, f"{archive_root}/{rel}")
+
+    print(f"built sdist: {sdist_path}")
+    return sdist_name
+
+
 def write_wheel_archive(
     wheel_directory: Path,
     target: Target,
@@ -510,6 +583,12 @@ def prepare_metadata(metadata_directory: Path, config_settings: dict[str, Any] |
     for filename, content in metadata_files(project, version, target.platform_tag).items():
         write_text_file(out / filename, content)
     return dist_info
+
+
+def build_sdist_from_config(sdist_directory: Path, config_settings: dict[str, Any] | None = None) -> str:
+    release = fetch_release(release_selector(config_settings))
+    version = normalize_release_version(release["tag_name"])
+    return write_sdist_archive(sdist_directory, version)
 
 
 def build_one_wheel(wheel_directory: Path, target: Target, release: dict[str, Any]) -> str:

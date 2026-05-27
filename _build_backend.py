@@ -5,10 +5,14 @@ import sys
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
-from scripts.build_wheel import build_wheel_from_config, prepare_metadata  # noqa: E402
+from scripts.build_wheel import build_sdist_from_config, build_wheel_from_config, prepare_metadata  # noqa: E402
 
 
 def get_requires_for_build_wheel(config_settings=None):
+    return []
+
+
+def get_requires_for_build_sdist(config_settings=None):
     return []
 
 
@@ -18,3 +22,7 @@ def prepare_metadata_for_build_wheel(metadata_directory, config_settings=None):
 
 def build_wheel(wheel_directory, config_settings=None, metadata_directory=None):
     return build_wheel_from_config(Path(wheel_directory), config_settings or {})
+
+
+def build_sdist(sdist_directory, config_settings=None):
+    return build_sdist_from_config(Path(sdist_directory), config_settings or {})
