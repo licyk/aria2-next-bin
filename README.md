@@ -1,8 +1,15 @@
 # aria2-next-bin
 
-`aria2-next-bin` 项目用来把 `AnInsomniacy/aria2-next` GitHub Releases 中已经构建好的
-`aria2-next` 可执行文件打包成平台专用 Python wheel。发布到 Python 包索引时，包名为
-`aria2-next`。本项目不会从源码编译 aria2-next。
+`aria2-next-bin` 项目用来把
+[`AnInsomniacy/aria2-next`](https://github.com/AnInsomniacy/aria2-next) GitHub Releases
+中已经构建好的 `aria2-next` 可执行文件打包成平台专用 Python wheel。本项目已经发布到
+PyPI，包名为 `aria2-next`，安装命令为：
+
+```bash
+pip install aria2-next
+```
+
+本项目不会从源码编译 aria2-next。
 
 ## 构建
 
@@ -54,6 +61,14 @@ wheel 版本号来自 GitHub release tag。例如 release `v2.2.6` 会生成版�
 
 ## 安装和运行
 
+从 PyPI 安装：
+
+```bash
+pip install aria2-next
+```
+
+从本地 wheel 安装：
+
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
@@ -78,7 +93,7 @@ release 下载文件会使用 SHA-256 校验。构建脚本会优先使用 GitHu
 `aria2-next-bin-wheels` artifact。手动触发时可以填写 `release` 来指定要打包的
 aria2-next release。
 
-默认不会上传到 PyPI。需要发布时，在 GitHub Actions 手动运行 workflow，并把
+默认不会上传到 PyPI。需要发布新版本时，在 GitHub Actions 手动运行 workflow，并把
 `publish` 设置为 `true`。发布使用 `twine upload dist/*.whl`，凭据从 Secrets 读取：
 
 - 推荐设置 `PYPI_API_TOKEN`，workflow 会使用 `__token__` 作为 Twine 用户名。
@@ -87,5 +102,7 @@ aria2-next release。
 
 ## 许可证
 
-打包进去的可执行文件来自 `AnInsomniacy/aria2-next`，按 GPL-2.0-or-later 分发。
+打包进去的可执行文件来自
+[`AnInsomniacy/aria2-next`](https://github.com/AnInsomniacy/aria2-next)，按
+GPL-2.0-or-later 分发。
 如果所选 release tag 可以获取上游 `COPYING` 文件，构建出的 wheel 会一并包含该文件。
