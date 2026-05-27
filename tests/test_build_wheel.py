@@ -64,7 +64,7 @@ def test_write_wheel_archive(tmp_path) -> None:
     )
 
     wheel_path = tmp_path / "dist" / wheel_name
-    assert wheel_name == "aria2_next_bin-2.2.6-py3-none-manylinux_2_28_x86_64.whl"
+    assert wheel_name == "aria2_next-2.2.6-py3-none-manylinux_2_28_x86_64.whl"
     assert wheel_path.exists()
 
     with zipfile.ZipFile(wheel_path) as zf:
@@ -72,24 +72,24 @@ def test_write_wheel_archive(tmp_path) -> None:
         assert "aria2_next/__init__.py" in names
         assert "aria2_next/__main__.py" in names
         assert "aria2_next/_find_aria2_next.py" in names
-        assert "aria2_next_bin-2.2.6.data/scripts/aria2-next" in names
+        assert "aria2_next-2.2.6.data/scripts/aria2-next" in names
         assert "aria2_next/licenses/aria2-next-COPYING" in names
-        assert "aria2_next_bin-2.2.6.dist-info/METADATA" in names
-        assert "aria2_next_bin-2.2.6.dist-info/RECORD" in names
+        assert "aria2_next-2.2.6.dist-info/METADATA" in names
+        assert "aria2_next-2.2.6.dist-info/RECORD" in names
 
-        metadata = zf.read("aria2_next_bin-2.2.6.dist-info/METADATA").decode()
-        assert "Name: aria2-next-bin" in metadata
+        metadata = zf.read("aria2_next-2.2.6.dist-info/METADATA").decode()
+        assert "Name: aria2-next" in metadata
         assert "Version: 2.2.6" in metadata
 
-        wheel = zf.read("aria2_next_bin-2.2.6.dist-info/WHEEL").decode()
+        wheel = zf.read("aria2_next-2.2.6.dist-info/WHEEL").decode()
         assert "Tag: py3-none-manylinux_2_28_x86_64" in wheel
 
-        assert "aria2_next_bin-2.2.6.dist-info/entry_points.txt" not in names
+        assert "aria2_next-2.2.6.dist-info/entry_points.txt" not in names
 
-        top_level = zf.read("aria2_next_bin-2.2.6.dist-info/top_level.txt").decode()
+        top_level = zf.read("aria2_next-2.2.6.dist-info/top_level.txt").decode()
         assert top_level == "aria2_next\n"
 
-        mode = zf.getinfo("aria2_next_bin-2.2.6.data/scripts/aria2-next").external_attr >> 16
+        mode = zf.getinfo("aria2_next-2.2.6.data/scripts/aria2-next").external_attr >> 16
         assert stat.S_ISREG(mode)
         assert stat.S_IMODE(mode) == 0o755
 

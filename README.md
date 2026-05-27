@@ -1,8 +1,8 @@
 # aria2-next-bin
 
-`aria2-next-bin` 用来把 `AnInsomniacy/aria2-next` GitHub Releases 中已经构建好的
-`aria2-next` 可执行文件打包成平台专用 Python wheel。本项目不会从源码编译
-aria2-next。
+`aria2-next-bin` 项目用来把 `AnInsomniacy/aria2-next` GitHub Releases 中已经构建好的
+`aria2-next` 可执行文件打包成平台专用 Python wheel。发布到 Python 包索引时，包名为
+`aria2-next`。本项目不会从源码编译 aria2-next。
 
 ## 构建
 
@@ -57,12 +57,12 @@ wheel 版本号来自 GitHub release tag。例如 release `v2.2.6` 会生成版�
 ```bash
 python3 -m venv .venv
 . .venv/bin/activate
-pip install dist/aria2_next_bin-*.whl
+pip install dist/aria2_next-*.whl
 aria2-next --version
 python -m aria2_next --version
 ```
 
-wheel 文件名仍来自发行包名 `aria2-next-bin`，安装后的 Python 包名是 `aria2_next`。
+wheel 文件名来自发行包名 `aria2-next`，安装后的 Python import 包名是 `aria2_next`。
 wheel 会像 uv 一样把真实的 `aria2-next` 二进制文件安装到当前 Python 环境的脚本目录
 （例如虚拟环境的 `bin/aria2-next`）。`python -m aria2_next` 会按 uv 的
 `_find_uv.py` 思路定位该二进制文件并执行它。

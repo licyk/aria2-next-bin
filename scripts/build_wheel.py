@@ -34,7 +34,7 @@ SOURCE_DIR = ROOT / "src"
 PROJECT_FILE = ROOT / "pyproject.toml"
 DEFAULT_REPOSITORY = "AnInsomniacy/aria2-next"
 DEFAULT_RELEASE = "latest"
-USER_AGENT = "aria2-next-bin-builder"
+USER_AGENT = "aria2-next-builder"
 
 
 @dataclass(frozen=True)
@@ -420,7 +420,7 @@ def metadata_text(project: dict[str, Any], version: str) -> str:
 def wheel_text(platform_tag: str) -> str:
     return (
         "Wheel-Version: 1.0\n"
-        "Generator: aria2-next-bin custom wheel builder\n"
+        "Generator: aria2-next custom wheel builder\n"
         "Root-Is-Purelib: false\n"
         f"Tag: py3-none-{platform_tag}\n"
     )

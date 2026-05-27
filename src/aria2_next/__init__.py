@@ -9,6 +9,6 @@ __all__ = ["Aria2NextNotFound", "find_aria2_next_bin"]
 
 
 try:
-    __version__ = version("aria2-next-bin")
+    __version__ = version("aria2-next")
 except PackageNotFoundError:  # pragma: no cover - only used from a source checkout
     __version__ = "0+unknown"
