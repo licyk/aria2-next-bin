@@ -1,5 +1,12 @@
 # aria2-next-bin
 
+<a href="https://github.com/licyk/aria2-next-bin/actions/workflows/build-wheels.yml">
+    <img src="https://github.com/licyk/aria2-next-bin/actions/workflows/build-wheels.yml/badge.svg" alt="Build wheels">
+</a>
+<a href="https://pypi.org/project/aria2-next">
+    <img src="https://img.shields.io/pypi/v/aria2-next" alt="Build wheels">
+</a>
+
 `aria2-next-bin` 项目用来把
 [`AnInsomniacy/aria2-next`](https://github.com/AnInsomniacy/aria2-next) GitHub Releases
 中已经构建好的 `aria2-next` 可执行文件打包成平台专用 Python wheel。本项目已经发布到
