@@ -86,6 +86,12 @@ TARGETS: dict[str, Target] = {
         platform_tag="win_arm64",
         wheel_binary="aria2-next.exe",
     ),
+    "android-arm64": Target(
+        key="android-arm64",
+        asset_suffix="android-arm64",
+        platform_tag="android_21_arm64_v8a",
+        wheel_binary="aria2-next",
+    ),
 }
 
 
@@ -177,6 +183,9 @@ def current_target_key() -> str:
             return "windows-x86_64"
         if machine == "aarch64":
             return "windows-arm64"
+    elif sys.platform == "android":
+        if machine == "aarch64":
+            return "android-arm64"
 
     raise SystemExit(f"unsupported current platform: sys.platform={sys.platform}, machine={platform.machine()}")
 
